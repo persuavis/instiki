@@ -53,8 +53,12 @@ class ApplicationController < ActionController::Base
     @author = cookies['author'] || 'AnonymousCoward'
     if @web_name
       @web = @wiki.webs[@web_name]
-      render(:status => 404, :text => "Unknown web '#{@web_name}'",
-             :layout => 'error') if @web.nil?
+      if @web.nil?
+        render(:status => 404, :text => "Unknown web '#{@web_name}'",
+              :layout => 'error')
+      else
+        self.prepend_view_path(File.join(@web.files_path, "../views"))
+      end
     end
   end
 

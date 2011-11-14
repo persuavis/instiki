@@ -13,7 +13,7 @@ class WikiController < ApplicationController
         :history, :revision, :atom_with_content, :atom_with_headlines, :if => Proc.new { |c| c.send(:do_caching?) }
   cache_sweeper :revision_sweeper
 
-  layout 'default', :except => [:atom_with_content, :atom_with_headlines, :atom, :source, :tex, :s5, :export_html]
+  layout :get_layout, :except => [:atom_with_content, :atom_with_headlines, :atom, :source, :tex, :s5, :export_html]
 
   def index
     if @web_name
@@ -424,6 +424,23 @@ EOL
     end
   end
 
+  def get_layout
+    l = 'default'
+    if @web
+      wiki_layout_file = File.join(@web.files_path, "../views/layouts/#{@web.address}.rhtml")
+      if File.exists?(wiki_layout_file)
+        l = wiki_layout_file 
+      else
+        logger.warn "WARNING get_layout: unable to set layout to #{wiki_layout_file}"
+      end
+    end
+    l
+  end
+
+  def web
+    @web
+  end
+  
   protected
 
   def do_caching?
